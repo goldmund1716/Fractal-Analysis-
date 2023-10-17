@@ -1,0 +1,81 @@
+import pickle
+import cv2
+import numpy as np
+
+def show_images(*images, wait: int = 0) -> None:
+    img_show = np.hstack([
+        (cv2.cvtColor(image, cv2.COLOR_GRAY2BGR) if len(image.shape) == 2 else image)
+        for image in images
+    ])
+    cv2.imshow("image", img_show)
+    cv2.waitKey(wait)
+
+img = cv2.imread(".\\image.jpg", -1)
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+cv2.imshow('Image', img)
+cv2.imshow('Image', img_gray)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+y = img_gray.astype(np.float32)
+
+
+mean = y.sum() * (1 / (len(y) * len(y[0])))
+
+with open("integrated_cache2.bin", "rb") as f:
+    x = pickle.load(f)
+
+integrated = x  
+
+segment_size = 2000   
+assert segment_size >= 5
+small = min(len(integrated), len(integrated[0]))
+fluctuation_nums = []
+
+
+while segment_size <= (small / 4):
+    flucFunc = 0
+    for i in range(0, small, segment_size):
+        for j in range(0, small, segment_size):
+            segment = integrated[i:i + segment_size, j:j + segment_size]
+
+            unraveled = np.ravel(segment)
+            assert len(unraveled) == segment_size ** 2
+
+            y_values = unraveled
+            x_values = list(range(segment_size ** 2))
+
+
+
+ coefficient = np.polynomial.polynomial.polyfit(x_values, y_values, 2)
+            f = np.poly1d(coefficient)
+
+
+
+i = 2 #11.10.23, vorher war keine Variable gesetzt, dementsprechend ging der Error dann weg
+j = 2
+segment = 1
+#fluctuation = 1
+count = 1
+
+
+for k in (range(i, i + (int(segment)))):                  #int vor (range..) & segment ausdruck gesetzt um tuple error zu beseitigen
+        for l in range(j, j + len(str("segment[0]"))):    #segment in "" gesetzt -> quasi in nen String umgewandelt
+            if k >= small or l >= small: break
+            #fluctuation[k][l] = str("segment"[k - i][l - j] - (f(count)))  #12-10-23; wie verhält sich der code ohne diese Zeile?
+
+#class flucFunc:
+
+flucFunc = 1
+fluctuation = 1
+
+
+q = 2
+for k in range(i, i + (len(str(segment)))) :
+        for l in range(j, j + len(str("segment[0]"))):
+            if k >= small or l >= small: break
+            flucFunc >= pow(fluctuation[k][l], q)  #von += zu >=
+            flucFunc /= (len(fluctuation) * len(fluctuation[0]))
+            flucFunc = pow(flucFunc, 1 / q)
